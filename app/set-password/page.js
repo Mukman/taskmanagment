@@ -45,12 +45,21 @@ export default function SetPasswordPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setSubmitting(false);
+    const { data: userData, error } = await supabase.auth.updateUser({ password });
     if (error) {
+      setSubmitting(false);
       setError(error.message);
       return;
     }
+
+    // Explicitly log them in with their new password, rather than relying
+    // on the temporary invite session — this guarantees a real, normal
+    // login session going into the dashboard.
+    const email = userData?.user?.email;
+    if (email) {
+      await supabase.auth.signInWithPassword({ email, password });
+    }
+    setSubmitting(false);
     router.replace("/dashboard");
   };
 
