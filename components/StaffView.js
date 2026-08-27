@@ -56,9 +56,15 @@ export default function StaffView({ profile }) {
     if (!error) loadTasks();
   };
 
+  // Staff can only remove tasks they added themselves — not ones a
+  // manager assigned to them (a manager removes those from their side).
+  const delHandler = (task) => (task.source === "self" ? () => del(task.id) : undefined);
+
   if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading your tasks…</div>;
 
   const filtered = tasks.filter((t) => filter === "All" || (filter === "self" ? t.source === "self" : t.source === "assigned"));
+  const toDoCount = tasks.filter((t) => t.status === "To Do").length;
+  const inProgressCount = tasks.filter((t) => t.status === "In Progress").length;
   const doneCount = tasks.filter((t) => t.status === "Done").length;
   const overdueCount = tasks.filter((t) => t.status !== "Done" && new Date(t.due_date) < new Date(todayISO())).length;
   const urgentTasks = tasks
@@ -68,7 +74,9 @@ export default function StaffView({ profile }) {
   return (
     <div>
       <div style={{ ...card, display: "flex", marginBottom: 14, overflow: "hidden" }}>
-        <Stat label="Open" value={tasks.length} color={T.ink} />
+        <Stat label="To Do" value={toDoCount} color={T.ink} />
+        <Divider />
+        <Stat label="In Progress" value={inProgressCount} color={T.accent} />
         <Divider />
         <Stat label="Completed" value={doneCount} color={T.good} />
         <Divider />
@@ -82,7 +90,7 @@ export default function StaffView({ profile }) {
             <span style={{ ...sectionLabel, color: T.danger, marginBottom: 0 }}>Urgent · {urgentTasks.length}</span>
           </div>
           {urgentTasks.map((t) => (
-            <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={del} />
+            <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
           ))}
         </div>
       )}
@@ -118,7 +126,7 @@ export default function StaffView({ profile }) {
           <div key={status} style={{ marginBottom: 14 }}>
             <div style={sectionLabel}>{status} · {items.length}</div>
             {items.map((t) => (
-              <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={del} />
+              <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
             ))}
           </div>
         );
