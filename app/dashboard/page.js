@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, ListTodo, Users, BarChart3, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { T } from "@/lib/theme";
 import StaffView from "@/components/StaffView";
 import TeamView from "@/components/TeamView";
 import ReportsView from "@/components/ReportsView";
@@ -15,8 +16,6 @@ const TAB_META = {
   reports: { label: "Reports", icon: BarChart3 },
   admin: { label: "Users", icon: ShieldCheck },
 };
-
-const SIDEBAR_WIDTH = 84;
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -49,7 +48,7 @@ export default function DashboardPage() {
 
   if (loading || !profile) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#8B95A3", fontSize: 14, fontFamily: fontStack }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: T.inkMuted, fontSize: T.font.base, fontFamily: T.sans }}>
         Loading…
       </div>
     );
@@ -61,29 +60,28 @@ export default function DashboardPage() {
   if (profile.is_admin) tabs.push("admin");
 
   return (
-    <div style={{ minHeight: "100vh", background: "#EEF1F4", fontFamily: fontStack }}>
-      {/* Vertical sidebar */}
+    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.sans }}>
       <nav
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           bottom: 0,
-          width: SIDEBAR_WIDTH,
-          background: "#14213D",
+          width: T.sidebarWidth,
+          background: T.sidebar,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          paddingTop: 22,
-          paddingBottom: 16,
+          paddingTop: 18,
+          paddingBottom: 14,
           zIndex: 10,
         }}
       >
-        <div style={{ width: 34, height: 34, borderRadius: 9, background: "#2B4C7E", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28, flexShrink: 0 }}>
-          <span style={{ color: "#fff", fontWeight: 800, fontSize: 15, fontFamily: "ui-monospace, monospace" }}>T</span>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 22, flexShrink: 0 }}>
+          <span style={{ color: "#fff", fontWeight: 800, fontSize: 13, fontFamily: T.mono }}>T</span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", alignItems: "center" }}>
           {tabs.map((key) => {
             const meta = TAB_META[key];
             const Icon = meta.icon;
@@ -94,45 +92,44 @@ export default function DashboardPage() {
                 onClick={() => setView(key)}
                 title={meta.label}
                 style={{
-                  width: 60,
+                  width: 52,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 4,
-                  padding: "9px 0",
-                  background: active ? "rgba(255,255,255,0.1)" : "transparent",
+                  gap: 3,
+                  padding: "7px 0",
+                  background: active ? T.sidebarActive : "transparent",
                   border: "none",
-                  borderRadius: 10,
+                  borderRadius: 7,
                   cursor: "pointer",
-                  color: active ? "#FFFFFF" : "#8CA0BF",
+                  color: active ? "#FFFFFF" : "#7C89A3",
                   position: "relative",
                 }}
               >
-                {active && <span style={{ position: "absolute", left: -12, top: "50%", transform: "translateY(-50%)", width: 3, height: 18, borderRadius: 3, background: "#5B8AD1" }} />}
-                <Icon size={19} strokeWidth={active ? 2.3 : 1.9} />
-                <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, letterSpacing: "-0.01em" }}>{meta.label}</span>
+                {active && <span style={{ position: "absolute", left: -9, top: "50%", transform: "translateY(-50%)", width: 2, height: 14, borderRadius: 2, background: "#5B8AD1" }} />}
+                <Icon size={16} strokeWidth={active ? 2.3 : 1.9} />
+                <span style={{ fontSize: 9, fontWeight: active ? 700 : 500 }}>{meta.label}</span>
               </button>
             );
           })}
         </div>
 
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-          <div title={profile.full_name} style={{ width: 32, height: 32, borderRadius: "50%", background: "#2B4C7E", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <div title={profile.full_name} style={{ width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}>
             {profile.full_name?.[0]?.toUpperCase() || "?"}
           </div>
-          <button onClick={logout} title="Log out" style={{ background: "none", border: "none", color: "#8CA0BF", cursor: "pointer", padding: 6, display: "flex" }}>
-            <LogOut size={17} />
+          <button onClick={logout} title="Log out" style={{ background: "none", border: "none", color: "#7C89A3", cursor: "pointer", padding: 5, display: "flex" }}>
+            <LogOut size={15} />
           </button>
         </div>
       </nav>
 
-      {/* Main content */}
-      <div style={{ marginLeft: SIDEBAR_WIDTH }}>
-        <div style={{ maxWidth: 640, margin: "0 auto", padding: "28px 24px 60px" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8B95A3", marginBottom: 3 }}>
+      <div style={{ marginLeft: T.sidebarWidth }}>
+        <div style={{ maxWidth: T.contentWidth, margin: "0 auto", padding: "22px 20px 48px" }}>
+          <div style={{ fontSize: T.font.xs, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: T.inkMuted, marginBottom: 2 }}>
             {profile.full_name} · {profile.role}
           </div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#14213D", margin: "0 0 22px", letterSpacing: "-0.015em" }}>
+          <h1 style={{ fontSize: T.font.xxl, fontWeight: 700, color: T.ink, margin: "0 0 16px", letterSpacing: "-0.01em" }}>
             {TAB_META[view]?.label || "My Tasks"}
           </h1>
 
@@ -145,5 +142,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-const fontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { User, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { T, card, sectionLabel } from "@/lib/theme";
 import AddTaskForm from "./AddTaskForm";
 import TaskCard from "./TaskCard";
 import { todayISO } from "@/lib/taskHelpers";
@@ -29,11 +30,11 @@ export default function TeamView({ profile }) {
     reload();
   };
 
-  if (loading) return <div style={{ padding: 20, color: "#5C6B7A", fontSize: 14 }}>Loading your team…</div>;
+  if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading your team…</div>;
 
   if (team.length === 0) {
     return (
-      <div style={{ background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, padding: 16, fontSize: 13, color: "#5C6B7A" }}>
+      <div style={{ ...card, padding: 14, fontSize: T.font.base, color: T.inkSoft }}>
         No one is reporting to you yet. In Supabase, set a staff member's <code>manager_id</code> to your user id (Table editor → profiles) to see them here.
       </div>
     );
@@ -49,39 +50,37 @@ export default function TeamView({ profile }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#5C6B7A", marginBottom: 8 }}>
-        {profile.role === "director" ? "All staff" : "Your team"} · task status
-      </div>
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ ...sectionLabel }}>{profile.role === "director" ? "All staff" : "Your team"} · task status</div>
+      <div style={{ marginBottom: 14 }}>
         {teamStats.map((s) => {
           const isOpen = expanded === s.id;
           return (
-            <div key={s.id} style={{ background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, marginBottom: 8, overflow: "hidden" }}>
+            <div key={s.id} style={{ ...card, marginBottom: 6, overflow: "hidden" }}>
               <button
                 onClick={() => setExpanded(isOpen ? null : s.id)}
-                style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 9, padding: "9px 11px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
               >
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#EEF0F3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <User size={16} color="#2B4C7E" />
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <User size={13} color={T.accent} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#14213D" }}>{s.full_name}</div>
-                  <div style={{ fontSize: 11, color: "#9AA5B1" }}>{s.owned.length} task{s.owned.length === 1 ? "" : "s"}</div>
+                  <div style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink }}>{s.full_name}</div>
+                  <div style={{ fontSize: 10.5, color: T.inkMuted }}>{s.owned.length} task{s.owned.length === 1 ? "" : "s"}</div>
                 </div>
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "#14213D" }}>{s.rate}%</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: T.mono, color: T.ink }}>{s.rate}%</div>
                   {s.overdue > 0 && (
-                    <div style={{ fontSize: 10, color: "#D64550", display: "flex", alignItems: "center", gap: 2, justifyContent: "flex-end" }}>
-                      <AlertCircle size={10} /> {s.overdue} overdue
+                    <div style={{ fontSize: 9.5, color: T.danger, display: "flex", alignItems: "center", gap: 2, justifyContent: "flex-end" }}>
+                      <AlertCircle size={9} /> {s.overdue} overdue
                     </div>
                   )}
                 </div>
-                {isOpen ? <ChevronUp size={16} color="#9AA5B1" /> : <ChevronDown size={16} color="#9AA5B1" />}
+                {isOpen ? <ChevronUp size={14} color={T.inkMuted} /> : <ChevronDown size={14} color={T.inkMuted} />}
               </button>
               {isOpen && (
-                <div style={{ padding: "0 12px 12px" }}>
+                <div style={{ padding: "0 11px 11px" }}>
                   {s.owned.length === 0 ? (
-                    <div style={{ fontSize: 12, color: "#9AA5B1", padding: "6px 0" }}>No tasks yet.</div>
+                    <div style={{ fontSize: T.font.sm, color: T.inkMuted, padding: "5px 0" }}>No tasks yet.</div>
                   ) : (
                     s.owned.map((t) => <TaskCard key={t.id} task={t} />)
                   )}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { T, card, input, btnPrimary } from "@/lib/theme";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,27 +26,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div style={{ width: "100%", maxWidth: 360 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#2B4C7E", textAlign: "center" }}>Taskline</div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#14213D", textAlign: "center", margin: "2px 0 20px" }}>Welcome back</h1>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: T.bg, fontFamily: T.sans }}>
+      <div style={{ width: "100%", maxWidth: 320 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: T.sidebar, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: 14, fontFamily: T.mono }}>T</span>
+          </div>
+        </div>
+        <h1 style={{ fontSize: T.font.xl, fontWeight: 700, color: T.ink, textAlign: "center", margin: "0 0 18px" }}>Sign in to Taskline</h1>
 
-        <form onSubmit={submit} style={{ background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, padding: 18 }}>
+        <form onSubmit={submit} style={{ ...card, padding: 16 }}>
           <Field label="Email">
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={input} />
           </Field>
           <Field label="Password">
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={input} />
           </Field>
 
-          {error && <div style={{ color: "#D64550", fontSize: 13, marginBottom: 10 }}>{error}</div>}
+          {error && <div style={{ color: T.danger, fontSize: T.font.sm, marginBottom: 10 }}>{error}</div>}
 
-          <button type="submit" disabled={loading} style={{ width: "100%", background: "#14213D", color: "#fff", border: "none", borderRadius: 8, padding: "10px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+          <button type="submit" disabled={loading} style={{ ...btnPrimary, width: "100%" }}>
             {loading ? "Please wait…" : "Log in"}
           </button>
         </form>
 
-        <div style={{ textAlign: "center", marginTop: 14, fontSize: 12, color: "#9AA5B1" }}>
+        <div style={{ textAlign: "center", marginTop: 12, fontSize: 11.5, color: T.inkMuted }}>
           Don't have an account? Ask your admin to create one for you.
         </div>
       </div>
@@ -55,19 +60,9 @@ export default function LoginPage() {
 
 function Field({ label, children }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#5C6B7A", marginBottom: 5 }}>{label}</label>
+    <div style={{ marginBottom: 11 }}>
+      <label style={{ display: "block", fontSize: 11.5, fontWeight: 600, color: T.inkSoft, marginBottom: 4 }}>{label}</label>
       {children}
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  border: "1px solid #E3E7EC",
-  borderRadius: 7,
-  padding: "9px 10px",
-  fontSize: 14,
-  boxSizing: "border-box",
-  fontFamily: "inherit",
-};

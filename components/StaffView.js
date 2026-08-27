@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { T, card, sectionLabel } from "@/lib/theme";
 import TaskCard from "./TaskCard";
 import AddTaskForm from "./AddTaskForm";
 import { STATUSES, todayISO } from "@/lib/taskHelpers";
@@ -55,31 +56,30 @@ export default function StaffView({ profile }) {
     if (!error) loadTasks();
   };
 
-  if (loading) return <div style={{ padding: 20, color: "#5C6B7A", fontSize: 14 }}>Loading your tasks…</div>;
+  if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading your tasks…</div>;
 
   const filtered = tasks.filter((t) => filter === "All" || (filter === "self" ? t.source === "self" : t.source === "assigned"));
   const doneCount = tasks.filter((t) => t.status === "Done").length;
   const overdueCount = tasks.filter((t) => t.status !== "Done" && new Date(t.due_date) < new Date(todayISO())).length;
-
   const urgentTasks = tasks
     .filter((t) => t.status !== "Done" && (t.priority === "High" || new Date(t.due_date) < new Date(todayISO())))
     .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-        <Stat label="Open tasks" value={tasks.length} color="#14213D" />
-        <Stat label="Completed" value={doneCount} color="#3D8361" />
-        <Stat label="Overdue" value={overdueCount} color={overdueCount ? "#D64550" : "#14213D"} />
+      <div style={{ ...card, display: "flex", marginBottom: 14, overflow: "hidden" }}>
+        <Stat label="Open" value={tasks.length} color={T.ink} />
+        <Divider />
+        <Stat label="Completed" value={doneCount} color={T.good} />
+        <Divider />
+        <Stat label="Overdue" value={overdueCount} color={overdueCount ? T.danger : T.ink} />
       </div>
 
       {urgentTasks.length > 0 && (
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#D64550" }} />
-            <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#D64550" }}>
-              Urgent · {urgentTasks.length}
-            </span>
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.danger }} />
+            <span style={{ ...sectionLabel, color: T.danger, marginBottom: 0 }}>Urgent · {urgentTasks.length}</span>
           </div>
           {urgentTasks.map((t) => (
             <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={del} />
@@ -89,19 +89,19 @@ export default function StaffView({ profile }) {
 
       <AddTaskForm onAdd={add} showAssignee={false} />
 
-      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+      <div style={{ display: "flex", gap: 5, marginBottom: 10 }}>
         {[{ key: "All", label: "All" }, { key: "assigned", label: "Assigned" }, { key: "self", label: "Self-initiated" }].map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
             style={{
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: 600,
-              padding: "5px 11px",
+              padding: "4px 10px",
               borderRadius: 20,
-              border: "1px solid " + (filter === f.key ? "#14213D" : "#E3E7EC"),
-              background: filter === f.key ? "#14213D" : "#fff",
-              color: filter === f.key ? "#fff" : "#5C6B7A",
+              border: `1px solid ${filter === f.key ? T.ink : T.border}`,
+              background: filter === f.key ? T.ink : T.surface,
+              color: filter === f.key ? "#fff" : T.inkSoft,
               cursor: "pointer",
             }}
           >
@@ -114,26 +114,28 @@ export default function StaffView({ profile }) {
         const items = filtered.filter((t) => t.status === status);
         if (items.length === 0) return null;
         return (
-          <div key={status} style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#5C6B7A", marginBottom: 8 }}>
-              {status} · {items.length}
-            </div>
+          <div key={status} style={{ marginBottom: 14 }}>
+            <div style={sectionLabel}>{status} · {items.length}</div>
             {items.map((t) => (
               <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={del} />
             ))}
           </div>
         );
       })}
-      {filtered.length === 0 && <div style={{ textAlign: "center", color: "#9AA5B1", fontSize: 13, padding: "24px 0" }}>Nothing here yet.</div>}
+      {filtered.length === 0 && <div style={{ textAlign: "center", color: T.inkMuted, fontSize: T.font.base, padding: "20px 0" }}>Nothing here yet.</div>}
     </div>
   );
 }
 
 function Stat({ label, value, color }) {
   return (
-    <div style={{ flex: 1, background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, padding: "10px 12px" }}>
-      <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color }}>{value}</div>
-      <div style={{ fontSize: 11, color: "#5C6B7A" }}>{label}</div>
+    <div style={{ flex: 1, padding: "10px 12px" }}>
+      <div style={{ fontSize: 18, fontWeight: 700, fontFamily: T.mono, color }}>{value}</div>
+      <div style={{ fontSize: 10.5, color: T.inkSoft }}>{label}</div>
     </div>
   );
+}
+
+function Divider() {
+  return <div style={{ width: 1, background: T.border }} />;
 }

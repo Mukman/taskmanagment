@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { T, card, input, btnPrimary, btnSecondary } from "@/lib/theme";
 
 function addDays(n) {
   const d = new Date();
@@ -29,40 +30,40 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#14213D", color: "#fff", border: "none", borderRadius: 12, padding: "11px", fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}
+        style={{ ...btnSecondary, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: T.surface, marginBottom: 12, padding: "9px" }}
       >
-        <Plus size={16} /> {showAssignee ? "Assign a task" : "Add a task"}
+        <Plus size={14} /> {showAssignee ? "Assign a task" : "Add a task"}
       </button>
     );
   }
 
   return (
-    <div style={{ background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, padding: 12, marginBottom: 14 }}>
+    <div style={{ ...card, padding: 12, marginBottom: 12 }}>
       <input
         autoFocus
         placeholder="Task title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        style={{ width: "100%", border: "1px solid #E3E7EC", borderRadius: 7, padding: "8px 10px", fontSize: 14, marginBottom: 8, boxSizing: "border-box", fontFamily: "inherit" }}
+        style={{ ...input, marginBottom: 7 }}
       />
-      <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ flex: 1, minWidth: 90, border: "1px solid #E3E7EC", borderRadius: 7, padding: "8px 6px", fontSize: 13, fontFamily: "inherit" }}>
+      <div style={{ display: "flex", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
+        <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ ...input, flex: 1, minWidth: 90 }}>
           <option value="High">High priority</option>
           <option value="Med">Med priority</option>
           <option value="Low">Low priority</option>
         </select>
-        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={{ flex: 1, minWidth: 130, border: "1px solid #E3E7EC", borderRadius: 7, padding: "8px 6px", fontSize: 13, fontFamily: "inherit" }} />
+        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={{ ...input, flex: 1, minWidth: 120 }} />
       </div>
       {showAssignee && (
-        <select value={assignee} onChange={(e) => setAssignee(e.target.value)} style={{ width: "100%", border: "1px solid #E3E7EC", borderRadius: 7, padding: "8px 6px", fontSize: 13, marginBottom: 8, fontFamily: "inherit", boxSizing: "border-box" }}>
+        <select value={assignee} onChange={(e) => setAssignee(e.target.value)} style={{ ...input, marginBottom: 7 }}>
           {staffOptions.map((s) => (
             <option key={s.id} value={s.id}>Assign to {s.full_name}</option>
           ))}
         </select>
       )}
-      <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={submit} style={{ flex: 1, background: "#14213D", color: "#fff", border: "none", borderRadius: 7, padding: "8px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Save</button>
-        <button onClick={() => setOpen(false)} style={{ flex: 1, background: "#EEF0F3", color: "#5C6B7A", border: "none", borderRadius: 7, padding: "8px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+      <div style={{ display: "flex", gap: 7 }}>
+        <button onClick={submit} style={{ ...btnPrimary, flex: 1, padding: "7px" }}>Save</button>
+        <button onClick={() => setOpen(false)} style={{ ...btnSecondary, flex: 1, padding: "7px" }}>Cancel</button>
       </div>
     </div>
   );

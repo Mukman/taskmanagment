@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Pencil, Trash2, X, Check } from "lucide-react";
+import { Pencil, Trash2, Check } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { T, card, input, btnPrimary, btnSecondary, sectionLabel } from "@/lib/theme";
 
 async function authedFetch(path, body, method = "POST") {
   const { data: sessionData } = await supabase.auth.getSession();
@@ -21,7 +22,7 @@ export default function AdminView({ profile }) {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
-  const [banner, setBanner] = useState(null); // { type: 'error'|'success', text }
+  const [banner, setBanner] = useState(null);
 
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -83,23 +84,23 @@ export default function AdminView({ profile }) {
     }
   };
 
-  if (loading) return <div style={{ padding: 4, color: "#5C6B7A", fontSize: 14 }}>Loading…</div>;
+  if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading…</div>;
 
   const potentialManagers = people.filter((p) => p.role === "manager" || p.role === "director");
 
   return (
     <div>
-      <SectionLabel>Invite someone</SectionLabel>
-      <form onSubmit={invite} style={cardStyle}>
+      <div style={sectionLabel}>Invite someone</div>
+      <form onSubmit={invite} style={{ ...card, padding: 12, marginBottom: 14 }}>
         <Field label="Email">
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={input} />
         </Field>
         <Field label="Full name">
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} required style={inputStyle} />
+          <input value={fullName} onChange={(e) => setFullName(e.target.value)} required style={input} />
         </Field>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 7 }}>
           <Field label="Role" style={{ flex: 1 }}>
-            <select value={role} onChange={(e) => setRole(e.target.value)} style={inputStyle}>
+            <select value={role} onChange={(e) => setRole(e.target.value)} style={input}>
               <option value="staff">Staff</option>
               <option value="manager">Manager</option>
               <option value="director">Director</option>
@@ -107,7 +108,7 @@ export default function AdminView({ profile }) {
           </Field>
           {role === "staff" && (
             <Field label="Reports to" style={{ flex: 1 }}>
-              <select value={managerId} onChange={(e) => setManagerId(e.target.value)} style={inputStyle}>
+              <select value={managerId} onChange={(e) => setManagerId(e.target.value)} style={input}>
                 <option value="">— None yet —</option>
                 {potentialManagers.map((m) => (
                   <option key={m.id} value={m.id}>{m.full_name}</option>
@@ -117,18 +118,18 @@ export default function AdminView({ profile }) {
           )}
         </div>
 
-        <button type="submit" disabled={inviting} style={primaryBtnStyle}>
+        <button type="submit" disabled={inviting} style={{ ...btnPrimary, width: "100%" }}>
           {inviting ? "Sending invite…" : "Send invite"}
         </button>
       </form>
 
       {banner && (
-        <div style={{ fontSize: 13, marginBottom: 16, color: banner.type === "error" ? "#D64550" : "#3D8361", fontWeight: 600 }}>
+        <div style={{ fontSize: T.font.base, marginBottom: 14, color: banner.type === "error" ? T.danger : T.good, fontWeight: 600 }}>
           {banner.text}
         </div>
       )}
 
-      <SectionLabel>Everyone ({people.length})</SectionLabel>
+      <div style={sectionLabel}>Everyone ({people.length})</div>
       {people.map((p) => (
         <PersonRow
           key={p.id}
@@ -153,13 +154,13 @@ export default function AdminView({ profile }) {
 function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFieldChange, managers, canDelete }) {
   if (isEditing) {
     return (
-      <div style={{ ...cardStyle, marginBottom: 8 }}>
+      <div style={{ ...card, padding: 12, marginBottom: 6 }}>
         <Field label="Full name">
-          <input value={person.full_name} onChange={(e) => onFieldChange("full_name", e.target.value)} style={inputStyle} />
+          <input value={person.full_name} onChange={(e) => onFieldChange("full_name", e.target.value)} style={input} />
         </Field>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 7 }}>
           <Field label="Role" style={{ flex: 1 }}>
-            <select value={person.role} onChange={(e) => onFieldChange("role", e.target.value)} style={inputStyle}>
+            <select value={person.role} onChange={(e) => onFieldChange("role", e.target.value)} style={input}>
               <option value="staff">Staff</option>
               <option value="manager">Manager</option>
               <option value="director">Director</option>
@@ -167,7 +168,7 @@ function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFi
           </Field>
           {person.role === "staff" && (
             <Field label="Reports to" style={{ flex: 1 }}>
-              <select value={person.manager_id || ""} onChange={(e) => onFieldChange("manager_id", e.target.value)} style={inputStyle}>
+              <select value={person.manager_id || ""} onChange={(e) => onFieldChange("manager_id", e.target.value)} style={input}>
                 <option value="">— None —</option>
                 {managers.map((m) => (
                   <option key={m.id} value={m.id}>{m.full_name}</option>
@@ -176,32 +177,32 @@ function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFi
             </Field>
           )}
         </div>
-        <label style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, color: "#5C6B7A", margin: "2px 0 12px" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: T.font.sm, color: T.inkSoft, margin: "2px 0 10px" }}>
           <input type="checkbox" checked={person.is_admin} onChange={(e) => onFieldChange("is_admin", e.target.checked)} />
           Can manage accounts (admin)
         </label>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => onSave(person)} style={{ ...primaryBtnStyle, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <Check size={14} /> Save
+        <div style={{ display: "flex", gap: 7 }}>
+          <button onClick={() => onSave(person)} style={{ ...btnPrimary, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <Check size={13} /> Save
           </button>
-          <button onClick={onCancel} style={{ ...secondaryBtnStyle, flex: 1 }}>Cancel</button>
+          <button onClick={onCancel} style={{ ...btnSecondary, flex: 1 }}>Cancel</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#FFFFFF", border: "1px solid #E3E7EC", borderRadius: 12, padding: "11px 14px", marginBottom: 8 }}>
+    <div style={{ ...card, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", marginBottom: 6 }}>
       <div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "#14213D" }}>
-          {person.full_name} {person.is_admin && <span style={{ fontSize: 10, fontWeight: 700, color: "#2B4C7E", background: "#EAF0FA", padding: "1px 6px", borderRadius: 20, marginLeft: 4 }}>ADMIN</span>}
+        <div style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink }}>
+          {person.full_name} {person.is_admin && <span style={{ fontSize: 9, fontWeight: 700, color: T.accent, background: T.accentSoft, padding: "1px 5px", borderRadius: 20, marginLeft: 4 }}>ADMIN</span>}
         </div>
-        <div style={{ fontSize: 12, color: "#9AA5B1", textTransform: "capitalize" }}>{person.role}</div>
+        <div style={{ fontSize: 11, color: T.inkMuted, textTransform: "capitalize" }}>{person.role}</div>
       </div>
-      <div style={{ display: "flex", gap: 4 }}>
-        <IconButton onClick={onEdit} title="Edit"><Pencil size={15} /></IconButton>
+      <div style={{ display: "flex", gap: 2 }}>
+        <IconButton onClick={onEdit} title="Edit"><Pencil size={13} /></IconButton>
         {canDelete && (
-          <IconButton onClick={onDelete} title="Delete" danger><Trash2 size={15} /></IconButton>
+          <IconButton onClick={onDelete} title="Delete" danger><Trash2 size={13} /></IconButton>
         )}
       </div>
     </div>
@@ -210,63 +211,17 @@ function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFi
 
 function IconButton({ onClick, title, children, danger }) {
   return (
-    <button onClick={onClick} title={title} style={{ background: "none", border: "none", cursor: "pointer", padding: 7, borderRadius: 8, color: danger ? "#D64550" : "#5C6B7A", display: "flex" }}>
+    <button onClick={onClick} title={title} style={{ background: "none", border: "none", cursor: "pointer", padding: 6, borderRadius: 6, color: danger ? T.danger : T.inkSoft, display: "flex" }}>
       {children}
     </button>
   );
 }
 
-function SectionLabel({ children }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#8B95A3", marginBottom: 10, marginTop: 4 }}>{children}</div>;
-}
-
 function Field({ label, children, style }) {
   return (
-    <div style={{ marginBottom: 12, ...style }}>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#5C6B7A", marginBottom: 5 }}>{label}</label>
+    <div style={{ marginBottom: 10, ...style }}>
+      <label style={{ display: "block", fontSize: 11.5, fontWeight: 600, color: T.inkSoft, marginBottom: 4 }}>{label}</label>
       {children}
     </div>
   );
 }
-
-const cardStyle = {
-  background: "#FFFFFF",
-  border: "1px solid #E3E7EC",
-  borderRadius: 14,
-  padding: 16,
-  marginBottom: 16,
-  boxShadow: "0 1px 2px rgba(20,33,61,0.04)",
-};
-
-const inputStyle = {
-  width: "100%",
-  border: "1px solid #DDE1E6",
-  borderRadius: 8,
-  padding: "9px 10px",
-  fontSize: 14,
-  boxSizing: "border-box",
-  fontFamily: "inherit",
-};
-
-const primaryBtnStyle = {
-  width: "100%",
-  background: "#14213D",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  padding: "10px",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const secondaryBtnStyle = {
-  background: "#F1F3F6",
-  color: "#5C6B7A",
-  border: "none",
-  borderRadius: 8,
-  padding: "10px",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-};
