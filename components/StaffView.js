@@ -90,24 +90,25 @@ export default function StaffView({ profile }) {
       <AddTaskForm onAdd={add} showAssignee={false} />
 
       <div style={{ display: "flex", gap: 5, marginBottom: 10 }}>
-        {[{ key: "All", label: "All" }, { key: "assigned", label: "Assigned" }, { key: "self", label: "Self-initiated" }].map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            style={{
-              fontSize: 11.5,
-              fontWeight: 600,
-              padding: "4px 10px",
-              borderRadius: 20,
-              border: `1px solid ${filter === f.key ? T.ink : T.border}`,
-              background: filter === f.key ? T.ink : T.surface,
-              color: filter === f.key ? "#fff" : T.inkSoft,
-              cursor: "pointer",
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
+        {profile.role === "staff" &&
+          [{ key: "All", label: "All" }, { key: "assigned", label: "Assigned" }, { key: "self", label: "Self-initiated" }].map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              style={{
+                fontSize: 11.5,
+                fontWeight: 600,
+                padding: "4px 10px",
+                borderRadius: 20,
+                border: `1px solid ${filter === f.key ? T.ink : T.border}`,
+                background: filter === f.key ? T.ink : T.surface,
+                color: filter === f.key ? "#fff" : T.inkSoft,
+                cursor: "pointer",
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
       </div>
 
       {STATUSES.map((status) => {
