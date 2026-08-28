@@ -26,10 +26,11 @@ export default function StaffView({ profile }) {
     loadTasks();
   }, [loadTasks]);
 
-  const add = async ({ title, priority, dueDate }) => {
+  const add = async ({ title, priority, startDate, dueDate }) => {
     const { error } = await supabase.from("tasks").insert({
       title,
       priority,
+      start_date: startDate,
       due_date: dueDate,
       status: "To Do",
       source: "self",

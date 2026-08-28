@@ -2,7 +2,7 @@
 
 import { Check, Clock, X } from "lucide-react";
 import { T, priorityColor } from "@/lib/theme";
-import { daysAgoLabel, todayISO } from "@/lib/taskHelpers";
+import { daysAgoLabel, formatShortDate, todayISO } from "@/lib/taskHelpers";
 
 export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
   const overdue = task.status !== "Done" && new Date(task.due_date) < new Date(todayISO());
@@ -21,6 +21,11 @@ export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5, alignItems: "center" }}>
           <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: priorityColor[task.priority] }}>{task.priority}</span>
+          {task.start_date && (
+            <span style={{ fontSize: 10.5, color: T.inkMuted, fontFamily: T.mono }}>
+              {formatShortDate(task.start_date)} → {formatShortDate(task.due_date)}
+            </span>
+          )}
           <span style={{ fontSize: 11, color: overdue ? T.danger : T.inkSoft, fontFamily: T.mono }}>{daysAgoLabel(task.due_date)}</span>
           {assigneeName && (
             <span style={{ fontSize: 10, background: T.bg, color: T.inkSoft, padding: "1px 6px", borderRadius: 20, fontWeight: 500 }}>{assigneeName}</span>

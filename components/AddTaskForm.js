@@ -14,14 +14,22 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Med");
+  const [startDate, setStartDate] = useState(addDays(0));
   const [dueDate, setDueDate] = useState(addDays(2));
   const [assignee, setAssignee] = useState(staffOptions?.[0]?.id || "");
+  const [error, setError] = useState("");
 
   const submit = async () => {
     if (!title.trim()) return;
-    await onAdd({ title: title.trim(), priority, dueDate, assignee: assignee || null });
+    if (new Date(dueDate) < new Date(startDate)) {
+      setError("Due date can't be before the start date.");
+      return;
+    }
+    setError("");
+    await onAdd({ title: title.trim(), priority, startDate, dueDate, assignee: assignee || null });
     setTitle("");
     setPriority("Med");
+    setStartDate(addDays(0));
     setDueDate(addDays(2));
     setOpen(false);
   };
@@ -46,14 +54,22 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
         onChange={(e) => setTitle(e.target.value)}
         style={{ ...input, marginBottom: 7 }}
       />
-      <div style={{ display: "flex", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ ...input, flex: 1, minWidth: 90 }}>
-          <option value="High">High priority</option>
-          <option value="Med">Med priority</option>
-          <option value="Low">Low priority</option>
-        </select>
-        <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={{ ...input, flex: 1, minWidth: 120 }} />
+      <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ ...input, marginBottom: 7 }}>
+        <option value="High">High priority</option>
+        <option value="Med">Med priority</option>
+        <option value="Low">Low priority</option>
+      </select>
+      <div style={{ display: "flex", gap: 7, marginBottom: 7 }}>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>From</label>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={input} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>To</label>
+          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={input} />
+        </div>
       </div>
+      {error && <div style={{ color: T.danger, fontSize: 12, marginBottom: 7 }}>{error}</div>}
       {showAssignee && (
         <select value={assignee} onChange={(e) => setAssignee(e.target.value)} style={{ ...input, marginBottom: 7 }}>
           {staffOptions.map((s) => (

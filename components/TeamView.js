@@ -13,10 +13,11 @@ export default function TeamView({ profile }) {
   const { team, tasks, loading, reload } = useTeamData(profile);
   const [expanded, setExpanded] = useState(null);
 
-  const assign = async ({ title, priority, dueDate, assignee }) => {
+  const assign = async ({ title, priority, startDate, dueDate, assignee }) => {
     const { error } = await supabase.from("tasks").insert({
       title,
       priority,
+      start_date: startDate,
       due_date: dueDate,
       status: "To Do",
       source: "assigned",
