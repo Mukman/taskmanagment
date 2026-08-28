@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { T, card, input, sectionLabel } from "@/lib/theme";
 import { useTeamData } from "@/lib/useTeamData";
@@ -23,12 +24,14 @@ function summarize(tasksForPerson, cutoff) {
   const selfDone = done.filter((t) => t.source === "self").length;
   const onTime = done.filter((t) => new Date(t.completed_date) <= new Date(t.due_date)).length;
   const onTimeRate = done.length ? Math.round((onTime / done.length) * 100) : 0;
-  return { total: done.length, assignedDone, selfDone, onTimeRate };
+  const sortedDone = [...done].sort((a, b) => new Date(b.completed_date) - new Date(a.completed_date));
+  return { total: done.length, assignedDone, selfDone, onTimeRate, doneTasks: sortedDone };
 }
 
 export default function ReportsView({ profile }) {
   const isStaff = profile.role === "staff";
   const [period, setPeriod] = useState("weekly");
+  const [expandedId, setExpandedId] = useState(null);
   const periodLabel = { daily: "today", weekly: "this week", monthly: "this month" }[period];
   const cutoff = getCutoff(period);
 
@@ -53,13 +56,22 @@ export default function ReportsView({ profile }) {
     return (
       <div>
         <div style={sectionLabel}>Your report</div>
-        <div style={{ ...card, padding: 12 }}>
+        <div style={{ ...card, padding: 12, marginBottom: mine.doneTasks.length ? 16 : 0 }}>
           <PeriodPicker period={period} setPeriod={setPeriod} />
           <div style={{ fontSize: T.font.base, color: T.inkSoft, marginBottom: 10 }}>
             You completed <span style={{ fontFamily: T.mono, fontWeight: 700, color: T.ink }}>{mine.total}</span> task{mine.total === 1 ? "" : "s"} {periodLabel}.
           </div>
           <StatRow assignedDone={mine.assignedDone} selfDone={mine.selfDone} onTimeRate={mine.onTimeRate} />
         </div>
+
+        {mine.doneTasks.length > 0 && (
+          <>
+            <div style={sectionLabel}>Completed tasks</div>
+            {mine.doneTasks.map((t) => (
+              <ReportTaskRow key={t.id} task={t} />
+            ))}
+          </>
+        )}
       </div>
     );
   }
@@ -98,17 +110,51 @@ export default function ReportsView({ profile }) {
       {team.length > 0 && (
         <>
           <div style={sectionLabel}>By staff member</div>
-          {teamSummaries.map(({ person, total, assignedDone, selfDone, onTimeRate }) => (
-            <div key={person.id} style={{ ...card, padding: "10px 12px", marginBottom: 6 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                <span style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink }}>{person.full_name}</span>
-                <span style={{ fontSize: 11, color: T.inkMuted }}>{total} completed {periodLabel}</span>
+          {teamSummaries.map(({ person, total, assignedDone, selfDone, onTimeRate, doneTasks }) => {
+            const isOpen = expandedId === person.id;
+            return (
+              <div key={person.id} style={{ ...card, marginBottom: 6, overflow: "hidden" }}>
+                <button
+                  onClick={() => setExpandedId(isOpen ? null : person.id)}
+                  style={{ width: "100%", padding: "10px 12px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                    <span style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink }}>{person.full_name}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ fontSize: 11, color: T.inkMuted }}>{total} completed {periodLabel}</span>
+                      {isOpen ? <ChevronUp size={13} color={T.inkMuted} /> : <ChevronDown size={13} color={T.inkMuted} />}
+                    </div>
+                  </div>
+                  <StatRow assignedDone={assignedDone} selfDone={selfDone} onTimeRate={onTimeRate} compact />
+                </button>
+                {isOpen && (
+                  <div style={{ padding: "0 12px 10px" }}>
+                    {doneTasks.length === 0 ? (
+                      <div style={{ fontSize: T.font.sm, color: T.inkMuted, padding: "4px 0" }}>No completed tasks {periodLabel}.</div>
+                    ) : (
+                      doneTasks.map((t) => <ReportTaskRow key={t.id} task={t} />)
+                    )}
+                  </div>
+                )}
               </div>
-              <StatRow assignedDone={assignedDone} selfDone={selfDone} onTimeRate={onTimeRate} compact />
-            </div>
-          ))}
+            );
+          })}
         </>
       )}
+    </div>
+  );
+}
+
+function ReportTaskRow({ task }) {
+  const tickColor = { High: T.danger, Med: T.warn, Low: T.low }[task.priority];
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderTop: `1px solid ${T.border}` }}>
+      <span style={{ width: 3, height: 14, borderRadius: 2, background: tickColor, flexShrink: 0 }} />
+      <span style={{ flex: 1, fontSize: T.font.sm, color: T.ink, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</span>
+      <span style={{ fontSize: 10, background: task.source === "assigned" ? T.accentSoft : T.neutralSoft, color: task.source === "assigned" ? T.accent : T.inkSoft, padding: "1px 6px", borderRadius: 20, flexShrink: 0 }}>
+        {task.source === "assigned" ? "assigned" : "self"}
+      </span>
+      <span style={{ fontSize: 10.5, color: T.inkMuted, fontFamily: T.mono, flexShrink: 0 }}>{task.completed_date}</span>
     </div>
   );
 }
