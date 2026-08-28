@@ -59,20 +59,20 @@ export default function ReportsView({ profile }) {
         </div>
 
         <div style={{ display: "flex", gap: 7 }}>
-          <ReportStat value={assignedDone} label="Assigned, done" color={T.accent} />
-          <ReportStat value={selfDone} label="Self-initiated" color={T.inkSoft} />
-          <ReportStat value={onTimeRate + "%"} label="On-time rate" color={onTimeRate >= 70 ? T.good : T.danger} />
+          <ReportStat value={assignedDone} label="Assigned, done" color={T.accent} bg={T.accentSoft} />
+          <ReportStat value={selfDone} label="Self-initiated" color={T.inkSoft} bg={T.neutralSoft} />
+          <ReportStat value={onTimeRate + "%"} label="On-time rate" color={onTimeRate >= 70 ? T.good : T.danger} bg={onTimeRate >= 70 ? T.goodSoft : T.dangerSoft} />
         </div>
       </div>
     </div>
   );
 }
 
-function ReportStat({ value, label, color }) {
+function ReportStat({ value, label, color, bg }) {
   return (
-    <div style={{ flex: 1, background: T.bg, borderRadius: 7, padding: "7px 9px" }}>
+    <div style={{ flex: 1, background: bg, borderRadius: 7, padding: "7px 9px" }}>
       <div style={{ fontSize: 15, fontWeight: 700, fontFamily: T.mono, color }}>{value}</div>
-      <div style={{ fontSize: 9.5, color: T.inkSoft }}>{label}</div>
+      <div style={{ fontSize: 9.5, color, opacity: 0.75 }}>{label}</div>
     </div>
   );
 }

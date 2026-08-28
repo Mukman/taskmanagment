@@ -73,14 +73,11 @@ export default function StaffView({ profile }) {
 
   return (
     <div>
-      <div style={{ ...card, display: "flex", marginBottom: 14, overflow: "hidden" }}>
-        <Stat label="To Do" value={toDoCount} color={T.ink} />
-        <Divider />
-        <Stat label="In Progress" value={inProgressCount} color={T.accent} />
-        <Divider />
-        <Stat label="Completed" value={doneCount} color={T.good} />
-        <Divider />
-        <Stat label="Overdue" value={overdueCount} color={overdueCount ? T.danger : T.ink} />
+      <div style={{ display: "flex", gap: 7, marginBottom: 14 }}>
+        <Stat label="To Do" value={toDoCount} color={T.inkSoft} bg={T.neutralSoft} />
+        <Stat label="In Progress" value={inProgressCount} color={T.accent} bg={T.accentSoft} />
+        <Stat label="Completed" value={doneCount} color={T.good} bg={T.goodSoft} />
+        <Stat label="Overdue" value={overdueCount} color={T.danger} bg={T.dangerSoft} />
       </div>
 
       {urgentTasks.length > 0 && (
@@ -136,15 +133,11 @@ export default function StaffView({ profile }) {
   );
 }
 
-function Stat({ label, value, color }) {
+function Stat({ label, value, color, bg }) {
   return (
-    <div style={{ flex: 1, padding: "10px 12px" }}>
+    <div style={{ flex: 1, padding: "10px 11px", borderRadius: T.radius, background: bg }}>
       <div style={{ fontSize: 18, fontWeight: 700, fontFamily: T.mono, color }}>{value}</div>
-      <div style={{ fontSize: 10.5, color: T.inkSoft }}>{label}</div>
+      <div style={{ fontSize: 10.5, color, opacity: 0.75 }}>{label}</div>
     </div>
   );
-}
-
-function Divider() {
-  return <div style={{ width: 1, background: T.border }} />;
 }
