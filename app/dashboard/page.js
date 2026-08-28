@@ -56,7 +56,8 @@ export default function DashboardPage() {
 
   const canSeeTeam = profile.role === "manager" || profile.role === "director";
   const tabs = ["mine"];
-  if (canSeeTeam) tabs.push("team", "reports");
+  if (canSeeTeam) tabs.push("team");
+  tabs.push("reports");
   if (profile.is_admin) tabs.push("admin");
 
   return (
@@ -135,7 +136,7 @@ export default function DashboardPage() {
 
           {view === "mine" && <StaffView profile={profile} />}
           {view === "team" && canSeeTeam && <TeamView profile={profile} />}
-          {view === "reports" && canSeeTeam && <ReportsView profile={profile} />}
+          {view === "reports" && <ReportsView profile={profile} />}
           {view === "admin" && profile.is_admin && <AdminView profile={profile} />}
         </div>
       </div>
