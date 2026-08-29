@@ -37,8 +37,27 @@ export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
         </div>
         {onAdvance && task.status !== "Done" && (
           <button
-            onClick={() => onAdvance(task)}
-            style={{ marginTop: 7, fontSize: 11, fontWeight: 600, background: T.ink, color: "#fff", border: "none", borderRadius: 6, padding: "4px 9px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}
+            onClick={() => {
+              if (task.status === "In Progress") {
+                if (confirm(`Mark "${task.title}" as done?`)) onAdvance(task);
+              } else {
+                onAdvance(task);
+              }
+            }}
+            style={{
+              marginTop: 7,
+              fontSize: 11,
+              fontWeight: 600,
+              background: task.status === "To Do" ? T.accent : T.good,
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "4px 9px",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
           >
             {task.status === "To Do" ? <Clock size={11} /> : <Check size={11} />}
             {task.status === "To Do" ? "Start" : "Mark done"}
