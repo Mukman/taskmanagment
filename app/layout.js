@@ -1,4 +1,5 @@
 import "./globals.css";
+import ServiceWorkerUpdater from "./sw-updater";
 
 export const metadata = {
   title: "Taskline",
@@ -13,7 +14,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ServiceWorkerUpdater />
+        {children}
+      </body>
     </html>
   );
 }
