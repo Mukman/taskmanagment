@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Paperclip, X } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 import { T, card, input, btnPrimary, btnSecondary } from "@/lib/theme";
 
 function addDays(n) {
@@ -16,6 +17,8 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
   const [startDate, setStartDate] = useState(addDays(0));
   const [dueDate, setDueDate] = useState(addDays(2));
   const [assignee, setAssignee] = useState(staffOptions?.[0]?.id || "");
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const submit = async () => {
@@ -25,10 +28,28 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
       return;
     }
     setError("");
-    await onAdd({ title: title.trim(), startDate, dueDate, assignee: assignee || null });
+
+    let attachmentUrl = null;
+    let attachmentName = null;
+
+    if (file) {
+      setUploading(true);
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`;
+      const { error: uploadError } = await supabase.storage.from("attachments").upload(path, file);
+      setUploading(false);
+      if (uploadError) {
+        setError("Couldn't upload file: " + uploadError.message);
+        return;
+      }
+      attachmentUrl = supabase.storage.from("attachments").getPublicUrl(path).data.publicUrl;
+      attachmentName = file.name;
+    }
+
+    await onAdd({ title: title.trim(), startDate, dueDate, assignee: assignee || null, attachmentUrl, attachmentName });
     setTitle("");
     setStartDate(addDays(0));
     setDueDate(addDays(2));
+    setFile(null);
     setOpen(false);
   };
 
@@ -62,6 +83,22 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
           <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={input} />
         </div>
       </div>
+
+      {file ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.bg, borderRadius: T.radius, padding: "6px 9px", marginBottom: 7 }}>
+          <Paperclip size={13} color={T.inkSoft} />
+          <span style={{ flex: 1, fontSize: 12, color: T.inkSoft, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file.name}</span>
+          <button onClick={() => setFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkMuted, display: "flex" }}>
+            <X size={13} />
+          </button>
+        </div>
+      ) : (
+        <label style={{ ...btnSecondary, background: T.surface, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 7, padding: "7px", boxSizing: "border-box" }}>
+          <Paperclip size={13} /> Attach file or image
+          <input type="file" accept="image/*,.pdf,.doc,.docx,.xlsx,.xls,.csv,.txt" onChange={(e) => setFile(e.target.files?.[0] || null)} style={{ display: "none" }} />
+        </label>
+      )}
+
       {error && <div style={{ color: T.danger, fontSize: 12, marginBottom: 7 }}>{error}</div>}
       {showAssignee && (
         <select value={assignee} onChange={(e) => setAssignee(e.target.value)} style={{ ...input, marginBottom: 7 }}>
@@ -71,7 +108,7 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
         </select>
       )}
       <div style={{ display: "flex", gap: 7 }}>
-        <button onClick={submit} style={{ ...btnPrimary, flex: 1, padding: "7px" }}>Save</button>
+        <button onClick={submit} disabled={uploading} style={{ ...btnPrimary, flex: 1, padding: "7px" }}>{uploading ? "Uploading…" : "Save"}</button>
         <button onClick={() => setOpen(false)} style={{ ...btnSecondary, flex: 1, padding: "7px" }}>Cancel</button>
       </div>
     </div>

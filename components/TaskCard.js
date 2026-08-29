@@ -1,11 +1,14 @@
 "use client";
 
-import { Check, Clock, X } from "lucide-react";
+import { Check, Clock, X, Paperclip } from "lucide-react";
 import { T } from "@/lib/theme";
 import { daysAgoLabel, formatShortDate, todayISO } from "@/lib/taskHelpers";
 
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
+
 export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
   const overdue = task.status !== "Done" && new Date(task.due_date) < new Date(todayISO());
+  const isImage = task.attachment_url && IMAGE_EXT.test(task.attachment_name || task.attachment_url);
 
   return (
     <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "9px 10px", marginBottom: 6 }}>
@@ -35,6 +38,19 @@ export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
             <span style={{ fontSize: 10, background: T.bg, color: T.inkSoft, padding: "1px 6px", borderRadius: 20, fontWeight: 500 }}>self-initiated</span>
           )}
         </div>
+
+        {task.attachment_url && (
+          <a href={task.attachment_url} target="_blank" rel="noopener noreferrer" style={{ display: "block", marginTop: 7 }}>
+            {isImage ? (
+              <img src={task.attachment_url} alt={task.attachment_name || "attachment"} style={{ maxHeight: 90, borderRadius: 6, border: `1px solid ${T.border}`, display: "block" }} />
+            ) : (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: T.accent, background: T.accentSoft, padding: "3px 8px", borderRadius: 20 }}>
+                <Paperclip size={11} /> {task.attachment_name || "Attachment"}
+              </span>
+            )}
+          </a>
+        )}
+
         {onAdvance && task.status !== "Done" && (
           <button
             onClick={() => {

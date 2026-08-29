@@ -26,11 +26,13 @@ export default function StaffView({ profile }) {
     loadTasks();
   }, [loadTasks]);
 
-  const add = async ({ title, startDate, dueDate }) => {
+  const add = async ({ title, startDate, dueDate, attachmentUrl, attachmentName }) => {
     const { error } = await supabase.from("tasks").insert({
       title,
       start_date: startDate,
       due_date: dueDate,
+      attachment_url: attachmentUrl,
+      attachment_name: attachmentName,
       status: "To Do",
       source: "self",
       owner: profile.id,
@@ -74,10 +76,10 @@ export default function StaffView({ profile }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 7, marginBottom: 14 }}>
-        <Stat label="To Do" value={toDoCount} color={T.inkSoft} bg={T.neutralSoft} />
-        <Stat label="In Progress" value={inProgressCount} color={T.accent} bg={T.accentSoft} />
-        <Stat label="Completed" value={doneCount} color={T.good} bg={T.goodSoft} />
-        <Stat label="Overdue" value={overdueCount} color={T.danger} bg={T.dangerSoft} />
+        <Stat label="To Do" value={toDoCount} bg={T.boldNeutral} />
+        <Stat label="In Progress" value={inProgressCount} bg={T.boldAccent} />
+        <Stat label="Completed" value={doneCount} bg={T.boldGood} />
+        <Stat label="Overdue" value={overdueCount} bg={T.boldDanger} />
       </div>
 
       {urgentTasks.length > 0 && (
@@ -133,11 +135,11 @@ export default function StaffView({ profile }) {
   );
 }
 
-function Stat({ label, value, color, bg }) {
+function Stat({ label, value, bg }) {
   return (
     <div style={{ flex: 1, padding: "10px 11px", borderRadius: T.radius, background: bg }}>
-      <div style={{ fontSize: 18, fontWeight: 700, fontFamily: T.mono, color }}>{value}</div>
-      <div style={{ fontSize: 10.5, color, opacity: 0.75 }}>{label}</div>
+      <div style={{ fontSize: 19, fontWeight: 800, fontFamily: T.mono, color: "#fff" }}>{value}</div>
+      <div style={{ fontSize: 10.5, color: "#fff", opacity: 0.9, fontWeight: 600 }}>{label}</div>
     </div>
   );
 }
