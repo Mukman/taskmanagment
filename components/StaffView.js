@@ -26,10 +26,9 @@ export default function StaffView({ profile }) {
     loadTasks();
   }, [loadTasks]);
 
-  const add = async ({ title, priority, startDate, dueDate }) => {
+  const add = async ({ title, startDate, dueDate }) => {
     const { error } = await supabase.from("tasks").insert({
       title,
-      priority,
       start_date: startDate,
       due_date: dueDate,
       status: "To Do",
@@ -69,7 +68,7 @@ export default function StaffView({ profile }) {
   const doneCount = tasks.filter((t) => t.status === "Done").length;
   const overdueCount = tasks.filter((t) => t.status !== "Done" && new Date(t.due_date) < new Date(todayISO())).length;
   const urgentTasks = tasks
-    .filter((t) => t.status !== "Done" && (t.priority === "High" || new Date(t.due_date) < new Date(todayISO())))
+    .filter((t) => t.status !== "Done" && new Date(t.due_date) < new Date(todayISO()))
     .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
   return (

@@ -1,16 +1,15 @@
 "use client";
 
 import { Check, Clock, X } from "lucide-react";
-import { T, priorityColor } from "@/lib/theme";
+import { T } from "@/lib/theme";
 import { daysAgoLabel, formatShortDate, todayISO } from "@/lib/taskHelpers";
 
 export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
   const overdue = task.status !== "Done" && new Date(task.due_date) < new Date(todayISO());
 
   return (
-    <div style={{ display: "flex", gap: 9, background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "9px 10px", marginBottom: 6 }}>
-      <span style={{ width: 3, borderRadius: 2, background: priorityColor[task.priority], alignSelf: "stretch", flexShrink: 0 }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "9px 10px", marginBottom: 6 }}>
+      <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
           <span style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink, lineHeight: 1.35 }}>{task.title}</span>
           {onDelete && (
@@ -20,7 +19,6 @@ export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
           )}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5, alignItems: "center" }}>
-          <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: priorityColor[task.priority] }}>{task.priority}</span>
           {task.start_date && (
             <span style={{ fontSize: 10.5, color: T.inkMuted, fontFamily: T.mono }}>
               {formatShortDate(task.start_date)} → {formatShortDate(task.due_date)}

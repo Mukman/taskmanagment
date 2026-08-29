@@ -146,10 +146,8 @@ export default function ReportsView({ profile }) {
 }
 
 function ReportTaskRow({ task }) {
-  const tickColor = { High: T.danger, Med: T.warn, Low: T.low }[task.priority];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderTop: `1px solid ${T.border}` }}>
-      <span style={{ width: 3, height: 14, borderRadius: 2, background: tickColor, flexShrink: 0 }} />
       <span style={{ flex: 1, fontSize: T.font.sm, color: T.ink, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</span>
       <span style={{ fontSize: 10, background: task.source === "assigned" ? T.accentSoft : T.neutralSoft, color: task.source === "assigned" ? T.accent : T.inkSoft, padding: "1px 6px", borderRadius: 20, flexShrink: 0 }}>
         {task.source === "assigned" ? "assigned" : "self"}

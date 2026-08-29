@@ -13,7 +13,6 @@ function addDays(n) {
 export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState("Med");
   const [startDate, setStartDate] = useState(addDays(0));
   const [dueDate, setDueDate] = useState(addDays(2));
   const [assignee, setAssignee] = useState(staffOptions?.[0]?.id || "");
@@ -26,9 +25,8 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
       return;
     }
     setError("");
-    await onAdd({ title: title.trim(), priority, startDate, dueDate, assignee: assignee || null });
+    await onAdd({ title: title.trim(), startDate, dueDate, assignee: assignee || null });
     setTitle("");
-    setPriority("Med");
     setStartDate(addDays(0));
     setDueDate(addDays(2));
     setOpen(false);
@@ -54,11 +52,6 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
         onChange={(e) => setTitle(e.target.value)}
         style={{ ...input, marginBottom: 7 }}
       />
-      <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ ...input, marginBottom: 7 }}>
-        <option value="High">High priority</option>
-        <option value="Med">Med priority</option>
-        <option value="Low">Low priority</option>
-      </select>
       <div style={{ display: "flex", gap: 7, marginBottom: 7 }}>
         <div style={{ flex: 1 }}>
           <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>From</label>
