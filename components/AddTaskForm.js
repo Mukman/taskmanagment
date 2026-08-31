@@ -14,6 +14,7 @@ function addDays(n) {
 export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
+  const [multiDay, setMultiDay] = useState(false);
   const [startDate, setStartDate] = useState(addDays(0));
   const [dueDate, setDueDate] = useState(addDays(2));
   const [assignee, setAssignee] = useState(staffOptions?.[0]?.id || "");
@@ -23,7 +24,9 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
 
   const submit = async () => {
     if (!title.trim()) return;
-    if (new Date(dueDate) < new Date(startDate)) {
+    const finalStart = multiDay ? startDate : addDays(0);
+    const finalDue = multiDay ? dueDate : addDays(0);
+    if (new Date(finalDue) < new Date(finalStart)) {
       setError("Due date can't be before the start date.");
       return;
     }
@@ -45,8 +48,9 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
       attachmentName = file.name;
     }
 
-    await onAdd({ title: title.trim(), startDate, dueDate, assignee: assignee || null, attachmentUrl, attachmentName });
+    await onAdd({ title: title.trim(), startDate: finalStart, dueDate: finalDue, assignee: assignee || null, attachmentUrl, attachmentName });
     setTitle("");
+    setMultiDay(false);
     setStartDate(addDays(0));
     setDueDate(addDays(2));
     setFile(null);
@@ -73,16 +77,42 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
         onChange={(e) => setTitle(e.target.value)}
         style={{ ...input, marginBottom: 7 }}
       />
-      <div style={{ display: "flex", gap: 7, marginBottom: 7 }}>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>From</label>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={input} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>To</label>
-          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={input} />
-        </div>
+
+      <div style={{ display: "flex", gap: 5, marginBottom: 7 }}>
+        {[{ key: false, label: "Today" }, { key: true, label: "Date range" }].map((opt) => (
+          <button
+            key={String(opt.key)}
+            type="button"
+            onClick={() => setMultiDay(opt.key)}
+            style={{
+              flex: 1,
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "7px 0",
+              borderRadius: T.radius,
+              border: `1px solid ${multiDay === opt.key ? T.ink : T.border}`,
+              background: multiDay === opt.key ? T.ink : T.surface,
+              color: multiDay === opt.key ? "#fff" : T.inkSoft,
+              cursor: "pointer",
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
+
+      {multiDay && (
+        <div style={{ display: "flex", gap: 7, marginBottom: 7 }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>From</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={input} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: T.inkSoft, marginBottom: 3 }}>To</label>
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={input} />
+          </div>
+        </div>
+      )}
 
       {file ? (
         <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.bg, borderRadius: T.radius, padding: "6px 9px", marginBottom: 7 }}>
