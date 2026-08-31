@@ -90,9 +90,9 @@ export default function AddTaskForm({ onAdd, staffOptions, showAssignee }) {
               fontWeight: 600,
               padding: "7px 0",
               borderRadius: T.radius,
-              border: `1px solid ${multiDay === opt.key ? T.ink : T.border}`,
-              background: multiDay === opt.key ? T.ink : T.surface,
-              color: multiDay === opt.key ? "#fff" : T.inkSoft,
+              border: `1px solid ${multiDay === opt.key ? T.accent : T.border}`,
+              background: multiDay === opt.key ? T.accentSoft : T.surface,
+              color: multiDay === opt.key ? T.accent : T.inkSoft,
               cursor: "pointer",
             }}
           >
