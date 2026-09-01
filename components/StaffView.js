@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { T, card, sectionLabel } from "@/lib/theme";
 import TaskCard from "./TaskCard";
@@ -11,6 +12,7 @@ export default function StaffView({ profile }) {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState({ Done: true });
 
   const loadTasks = useCallback(async () => {
     const { data, error } = await supabase
@@ -121,12 +123,20 @@ export default function StaffView({ profile }) {
       {STATUSES.map((status) => {
         const items = filtered.filter((t) => t.status === status);
         if (items.length === 0) return null;
+        const isCollapsed = collapsed[status];
         return (
           <div key={status} style={{ marginBottom: 14 }}>
-            <div style={sectionLabel}>{status} · {items.length}</div>
-            {items.map((t) => (
-              <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
-            ))}
+            <button
+              onClick={() => setCollapsed((prev) => ({ ...prev, [status]: !prev[status] }))}
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: isCollapsed ? 0 : 8 }}
+            >
+              <span style={sectionLabel}>{status} · {items.length}</span>
+              {isCollapsed ? <ChevronDown size={13} color={T.inkMuted} /> : <ChevronUp size={13} color={T.inkMuted} />}
+            </button>
+            {!isCollapsed &&
+              items.map((t) => (
+                <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
+              ))}
           </div>
         );
       })}
