@@ -71,20 +71,22 @@ export default function DashboardPage() {
           left: 0,
           bottom: 0,
           width: T.sidebarWidth,
-          background: T.sidebar,
+          background: T.sidebarBg,
+          borderRight: `1px solid ${T.sidebarBorder}`,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 18,
-          paddingBottom: 14,
+          padding: "20px 14px",
           zIndex: 10,
         }}
       >
-        <div style={{ width: 28, height: 28, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 22, flexShrink: 0 }}>
-          <span style={{ color: "#fff", fontWeight: 800, fontSize: 13, fontFamily: T.mono }}>T</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 26, paddingLeft: 4 }}>
+          <div style={{ width: 26, height: 26, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: 12, fontFamily: T.mono }}>T</span>
+          </div>
+          <span style={{ fontSize: 14.5, fontWeight: 700, color: T.ink, letterSpacing: "-0.01em" }}>Taskline</span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", alignItems: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {tabs.map((key) => {
             const meta = TAB_META[key];
             const Icon = meta.icon;
@@ -93,46 +95,44 @@ export default function DashboardPage() {
               <button
                 key={key}
                 onClick={() => setView(key)}
-                title={meta.label}
                 style={{
-                  width: 52,
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
-                  gap: 3,
-                  padding: "7px 0",
+                  gap: 9,
+                  padding: "8px 10px",
                   background: active ? T.sidebarActive : "transparent",
                   border: "none",
-                  borderRadius: 7,
+                  borderRadius: 8,
                   cursor: "pointer",
-                  color: active ? "#FFFFFF" : "#7C89A3",
-                  position: "relative",
+                  color: active ? T.accent : T.inkSoft,
+                  textAlign: "left",
+                  width: "100%",
                 }}
               >
-                {active && <span style={{ position: "absolute", left: -9, top: "50%", transform: "translateY(-50%)", width: 2, height: 14, borderRadius: 2, background: "#5B8AD1" }} />}
-                <Icon size={16} strokeWidth={active ? 2.3 : 1.9} />
-                <span style={{ fontSize: 9, fontWeight: active ? 700 : 500 }}>{meta.label}</span>
+                <Icon size={16} strokeWidth={active ? 2.2 : 1.8} />
+                <span style={{ fontSize: 13, fontWeight: active ? 600 : 500 }}>{meta.label}</span>
               </button>
             );
           })}
         </div>
 
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <div title={profile.full_name} style={{ width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}>
+        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 9, paddingTop: 12, borderTop: `1px solid ${T.sidebarBorder}` }}>
+          <div title={profile.full_name} style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
             {profile.full_name?.[0]?.toUpperCase() || "?"}
           </div>
-          <button onClick={logout} title="Log out" style={{ background: "none", border: "none", color: "#7C89A3", cursor: "pointer", padding: 5, display: "flex" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: T.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{profile.full_name}</div>
+            <div style={{ fontSize: 10.5, color: T.inkMuted, textTransform: "capitalize" }}>{profile.role}</div>
+          </div>
+          <button onClick={logout} title="Log out" style={{ background: "none", border: "none", color: T.inkMuted, cursor: "pointer", padding: 4, display: "flex", flexShrink: 0 }}>
             <LogOut size={15} />
           </button>
         </div>
       </nav>
 
       <div style={{ marginLeft: T.sidebarWidth }}>
-        <div style={{ maxWidth: T.contentWidth, margin: "0 auto", padding: "22px 20px 48px" }}>
-          <div style={{ fontSize: T.font.xs, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: T.inkMuted, marginBottom: 2 }}>
-            {profile.full_name} · {profile.role}
-          </div>
-          <h1 style={{ fontSize: T.font.xxl, fontWeight: 700, color: T.ink, margin: "0 0 16px", letterSpacing: "-0.01em" }}>
+        <div style={{ maxWidth: T.contentWidth, margin: "0 auto", padding: "36px 32px 64px" }}>
+          <h1 style={{ fontSize: T.font.xxl, fontWeight: 700, color: T.ink, margin: "0 0 24px", letterSpacing: "-0.015em" }}>
             {TAB_META[view]?.label || "My Tasks"}
           </h1>
 

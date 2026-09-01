@@ -39,7 +39,7 @@ function LoginForm() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: T.bg, fontFamily: T.sans }}>
       <div style={{ width: "100%", maxWidth: 320 }}>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: T.sidebar, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ color: "#fff", fontWeight: 800, fontSize: 14, fontFamily: T.mono }}>T</span>
           </div>
         </div>

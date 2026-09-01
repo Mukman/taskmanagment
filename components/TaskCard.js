@@ -11,7 +11,7 @@ export default function TaskCard({ task, onAdvance, onDelete, assigneeName }) {
   const isImage = task.attachment_url && IMAGE_EXT.test(task.attachment_name || task.attachment_url);
 
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "9px 10px", marginBottom: 6 }}>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: "12px 14px", marginBottom: 8 }}>
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
           <span style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink, lineHeight: 1.35 }}>{task.title}</span>
