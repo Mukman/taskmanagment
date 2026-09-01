@@ -9,6 +9,7 @@ import StaffView from "@/components/StaffView";
 import TeamView from "@/components/TeamView";
 import ReportsView from "@/components/ReportsView";
 import AdminView from "@/components/AdminView";
+import IdleLogout from "@/components/IdleLogout";
 
 const TAB_META = {
   mine: { label: "My Tasks", icon: ListTodo },
@@ -62,6 +63,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.sans }}>
+      <IdleLogout />
       <nav
         style={{
           position: "fixed",

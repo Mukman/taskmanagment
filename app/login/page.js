@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { T, card, input, btnPrimary } from "@/lib/theme";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const timedOut = searchParams.get("timeout") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,6 +44,12 @@ export default function LoginPage() {
           </div>
         </div>
         <h1 style={{ fontSize: T.font.xl, fontWeight: 700, color: T.ink, textAlign: "center", margin: "0 0 18px" }}>Sign in to Taskline</h1>
+
+        {timedOut && (
+          <div style={{ background: T.accentSoft, color: T.accent, fontSize: T.font.sm, padding: "9px 12px", borderRadius: T.radius, marginBottom: 12, textAlign: "center" }}>
+            You were signed out after a period of inactivity. Please log in again.
+          </div>
+        )}
 
         <form onSubmit={submit} style={{ ...card, padding: 16 }}>
           <Field label="Email">

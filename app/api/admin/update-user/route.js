@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 async function requireAdmin(request) {
   const authHeader = request.headers.get("authorization") || "";
@@ -26,6 +27,11 @@ export async function PATCH(request) {
     const auth = await requireAdmin(request);
     if (auth.error) return auth.error;
 
+    const allowed = await checkRateLimit(`admin-update:${auth.callerId}`, { max: 40, windowMinutes: 5 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many changes made recently. Please wait a few minutes and try again." }, { status: 429 });
+    }
+
     const { userId, fullName, role, managerId, isAdmin } = await request.json();
     if (!userId) return NextResponse.json({ error: "Missing userId." }, { status: 400 });
     if (role && !["staff", "manager", "director"].includes(role)) {
@@ -38,6 +44,16 @@ export async function PATCH(request) {
     if (role !== undefined) update.role = role;
     if (managerId !== undefined) update.manager_id = managerId || null;
     if (isAdmin !== undefined) update.is_admin = isAdmin;
+
+    // Safety net: don't let the last admin remove their own admin access —
+    // that would lock everyone out of account management with no way back
+    // in short of editing the database directly.
+    if (userId === auth.callerId && isAdmin === false) {
+      const { count } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("is_admin", true);
+      if ((count || 0) <= 1) {
+        return NextResponse.json({ error: "You're the only admin — promote someone else first before removing your own access." }, { status: 400 });
+      }
+    }
 
     const { error } = await supabaseAdmin.from("profiles").update(update).eq("id", userId);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });

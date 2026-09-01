@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request) {
   try {
@@ -18,6 +19,11 @@ export async function POST(request) {
 
     if (profileError || !callerProfile?.is_admin) {
       return NextResponse.json({ error: "Only admins can do this." }, { status: 403 });
+    }
+
+    const allowed = await checkRateLimit(`admin-delete:${userData.user.id}`, { max: 15, windowMinutes: 5 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many deletions recently. Please wait a few minutes and try again." }, { status: 429 });
     }
 
     const { userId } = await request.json();

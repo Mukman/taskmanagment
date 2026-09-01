@@ -18,12 +18,15 @@ create table if not exists tasks (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   priority text not null check (priority in ('High', 'Med', 'Low')) default 'Med',
+  start_date date not null default current_date,
   due_date date not null,
   status text not null check (status in ('To Do', 'In Progress', 'Done')) default 'To Do',
   source text not null check (source in ('assigned', 'self')) default 'self',
   owner uuid not null references profiles(id) on delete cascade,
   assigned_by uuid references profiles(id) on delete set null,
   completed_date date,
+  attachment_url text,
+  attachment_name text,
   created_at timestamptz default now()
 );
 
@@ -45,6 +48,17 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
+
+-- 4. Rate limit tracking for admin actions (create/edit/delete accounts).
+-- No RLS policies are added on purpose — that means only the service role
+-- (used server-side in app/api/admin/*) can read or write this table at all.
+create table if not exists rate_limit_log (
+  id bigint generated always as identity primary key,
+  key text not null,
+  created_at timestamptz default now()
+);
+alter table rate_limit_log enable row level security;
+create index if not exists idx_rate_limit_log_key_created on rate_limit_log (key, created_at);
 
 -- ============================================================
 -- Row Level Security: this is what keeps staff from seeing
