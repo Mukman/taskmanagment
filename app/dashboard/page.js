@@ -65,18 +65,10 @@ export default function DashboardPage() {
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.sans }}>
       <IdleLogout />
       <nav
+        className="tl-sidebar"
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: T.sidebarWidth,
           background: T.sidebarBg,
           borderRight: `1px solid ${T.sidebarBorder}`,
-          display: "flex",
-          flexDirection: "column",
-          padding: "20px 14px",
-          zIndex: 10,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 26, paddingLeft: 4 }}>
@@ -130,8 +122,39 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div style={{ marginLeft: T.sidebarWidth }}>
-        <div style={{ maxWidth: T.contentWidth, margin: "0 auto", padding: "36px 32px 64px" }}>
+      {/* Mobile-only bottom tab bar — the sidebar above hides at narrow
+          widths via CSS, this takes over instead. */}
+      <div className="tl-bottom-nav" style={{ background: T.surface, borderTop: `1px solid ${T.border}` }}>
+        {tabs.map((key) => {
+          const meta = TAB_META[key];
+          const Icon = meta.icon;
+          const active = view === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setView(key)}
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 3,
+                padding: "6px 0",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: active ? T.accent : T.inkMuted,
+              }}
+            >
+              <Icon size={19} strokeWidth={active ? 2.3 : 1.9} />
+              <span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{meta.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="tl-content">
+        <div className="tl-content-inner">
           <h1 style={{ fontSize: T.font.xxl, fontWeight: 700, color: T.ink, margin: "0 0 24px", letterSpacing: "-0.015em" }}>
             {TAB_META[view]?.label || "My Tasks"}
           </h1>
