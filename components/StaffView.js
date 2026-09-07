@@ -60,9 +60,19 @@ export default function StaffView({ profile }) {
     if (!error) loadTasks();
   };
 
+  const editTask = async (id, updates) => {
+    const { error } = await supabase.from("tasks").update(updates).eq("id", id);
+    if (error) {
+      alert("Couldn't save changes: " + error.message);
+      return;
+    }
+    loadTasks();
+  };
+
   // Staff can only remove tasks they added themselves — not ones a
   // manager assigned to them (a manager removes those from their side).
   const delHandler = (task) => (task.source === "self" ? () => del(task.id) : undefined);
+  const editHandler = (task) => (task.source === "self" ? editTask : undefined);
 
   if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading your tasks…</div>;
 
@@ -91,7 +101,7 @@ export default function StaffView({ profile }) {
             <span style={{ ...sectionLabel, color: T.danger, marginBottom: 0 }}>Urgent · {urgentTasks.length}</span>
           </div>
           {urgentTasks.map((t) => (
-            <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
+            <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} onEdit={editHandler(t)} />
           ))}
         </div>
       )}
@@ -135,7 +145,7 @@ export default function StaffView({ profile }) {
             </button>
             {!isCollapsed &&
               items.map((t) => (
-                <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} />
+                <TaskCard key={t.id} task={t} onAdvance={advance} onDelete={delHandler(t)} onEdit={editHandler(t)} />
               ))}
           </div>
         );

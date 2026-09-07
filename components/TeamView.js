@@ -41,6 +41,15 @@ export default function TeamView({ profile }) {
     reload();
   };
 
+  const editAssigned = async (taskId, updates) => {
+    const { error } = await supabase.from("tasks").update(updates).eq("id", taskId);
+    if (error) {
+      alert("Couldn't save changes: " + error.message);
+      return;
+    }
+    reload();
+  };
+
   if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading your team…</div>;
 
   if (team.length === 0) {
@@ -94,7 +103,12 @@ export default function TeamView({ profile }) {
                     <div style={{ fontSize: T.font.sm, color: T.inkMuted, padding: "5px 0" }}>No tasks yet.</div>
                   ) : (
                     s.owned.map((t) => (
-                      <TaskCard key={t.id} task={t} onDelete={t.assigned_by === profile.id ? () => removeAssigned(t.id) : undefined} />
+                      <TaskCard
+                        key={t.id}
+                        task={t}
+                        onDelete={t.assigned_by === profile.id ? () => removeAssigned(t.id) : undefined}
+                        onEdit={t.assigned_by === profile.id ? editAssigned : undefined}
+                      />
                     ))
                   )}
                 </div>
