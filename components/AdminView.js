@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Pencil, Trash2, Check } from "lucide-react";
+import { Pencil, Archive, ArchiveRestore, Check } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { T, card, input, btnPrimary, btnSecondary, sectionLabel } from "@/lib/theme";
 
@@ -31,6 +31,7 @@ export default function AdminView({ profile }) {
   const [inviting, setInviting] = useState(false);
 
   const load = useCallback(async () => {
+    // Fetch all users, active and inactive
     const { data: everyone } = await supabase.from("profiles").select("*").order("full_name");
     setPeople(everyone || []);
     setLoading(false);
@@ -73,12 +74,17 @@ export default function AdminView({ profile }) {
     }
   };
 
-  const remove = async (person) => {
-    if (!confirm(`Delete ${person.full_name}? This also deletes all of their tasks. This can't be undone.`)) return;
+  const toggleArchive = async (person) => {
+    const action = person.is_active ? "archive" : "unarchive";
+    const actionText = action === "archive" ? "Archive" : "Unarchive";
+    
+    if (!confirm(`${actionText} ${person.full_name}? ${action === "archive" ? "Their task history will be preserved for reports, but they will be marked as inactive." : "This will restore their active status."}`)) return;
+    
     setBanner(null);
     try {
-      await authedFetch("/api/admin/delete-user", { userId: person.id });
+      await authedFetch("/api/admin/delete-user", { userId: person.id, action });
       load();
+      setBanner({ type: "success", text: `${person.full_name} has been ${action}d.` });
     } catch (err) {
       setBanner({ type: "error", text: err.message });
     }
@@ -86,7 +92,7 @@ export default function AdminView({ profile }) {
 
   if (loading) return <div style={{ color: T.inkMuted, fontSize: T.font.base }}>Loading…</div>;
 
-  const potentialManagers = people.filter((p) => p.role === "manager" || p.role === "director");
+  const potentialManagers = people.filter((p) => (p.role === "manager" || p.role === "director") && p.is_active);
 
   return (
     <div>
@@ -140,21 +146,23 @@ export default function AdminView({ profile }) {
             setEditingId(null);
             load();
           }}
-          onDelete={() => remove(p)}
+          onToggleArchive={() => toggleArchive(p)}
           onSave={saveEdit}
           onFieldChange={(field, value) => setPeople((prev) => prev.map((x) => (x.id === p.id ? { ...x, [field]: value } : x)))}
           managers={potentialManagers.filter((m) => m.id !== p.id)}
-          canDelete={p.id !== profile.id}
+          canArchive={p.id !== profile.id}
         />
       ))}
     </div>
   );
 }
 
-function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFieldChange, managers, canDelete }) {
+function PersonRow({ person, isEditing, onEdit, onCancel, onToggleArchive, onSave, onFieldChange, managers, canArchive }) {
+  const isArchived = !person.is_active;
+
   if (isEditing) {
     return (
-      <div style={{ ...card, padding: 12, marginBottom: 6 }}>
+      <div style={{ ...card, padding: 12, marginBottom: 6, opacity: isArchived ? 0.6 : 1 }}>
         <Field label="Full name">
           <input value={person.full_name} onChange={(e) => onFieldChange("full_name", e.target.value)} style={input} />
         </Field>
@@ -192,17 +200,25 @@ function PersonRow({ person, isEditing, onEdit, onCancel, onDelete, onSave, onFi
   }
 
   return (
-    <div style={{ ...card, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", marginBottom: 6 }}>
+    <div style={{ ...card, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", marginBottom: 6, opacity: isArchived ? 0.5 : 1, background: isArchived ? T.surface : card.background }}>
       <div>
-        <div style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink }}>
-          {person.full_name} {person.is_admin && <span style={{ fontSize: 9, fontWeight: 700, color: T.accent, background: T.accentSoft, padding: "1px 5px", borderRadius: 20, marginLeft: 4 }}>ADMIN</span>}
+        <div style={{ fontSize: T.font.base, fontWeight: 600, color: T.ink, display: "flex", alignItems: "center", gap: 6 }}>
+          {person.full_name} 
+          {person.is_admin && <span style={{ fontSize: 9, fontWeight: 700, color: T.accent, background: T.accentSoft, padding: "1px 5px", borderRadius: 20 }}>ADMIN</span>}
+          {isArchived && <span style={{ fontSize: 9, fontWeight: 700, color: T.inkMuted, background: T.border, padding: "1px 5px", borderRadius: 20 }}>ARCHIVED</span>}
         </div>
         <div style={{ fontSize: 11, color: T.inkMuted, textTransform: "capitalize" }}>{person.role}</div>
       </div>
       <div style={{ display: "flex", gap: 2 }}>
         <IconButton onClick={onEdit} title="Edit"><Pencil size={13} /></IconButton>
-        {canDelete && (
-          <IconButton onClick={onDelete} title="Delete" danger><Trash2 size={13} /></IconButton>
+        {canArchive && (
+          <IconButton 
+            onClick={onToggleArchive} 
+            title={isArchived ? "Unarchive" : "Archive"} 
+            danger={!isArchived}
+          >
+            {isArchived ? <ArchiveRestore size={13} /> : <Archive size={13} />}
+          </IconButton>
         )}
       </div>
     </div>

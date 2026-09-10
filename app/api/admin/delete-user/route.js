@@ -21,26 +21,34 @@ export async function POST(request) {
       return NextResponse.json({ error: "Only admins can do this." }, { status: 403 });
     }
 
-    const allowed = await checkRateLimit(`admin-delete:${userData.user.id}`, { max: 15, windowMinutes: 5 });
+    const allowed = await checkRateLimit(`admin-archive:${userData.user.id}`, { max: 15, windowMinutes: 5 });
     if (!allowed) {
-      return NextResponse.json({ error: "Too many deletions recently. Please wait a few minutes and try again." }, { status: 429 });
+      return NextResponse.json({ error: "Too many actions recently. Please wait a few minutes and try again." }, { status: 429 });
     }
 
-    const { userId } = await request.json();
+    const { userId, action } = await request.json(); // 'action' can be 'archive' or 'unarchive'
     if (!userId) return NextResponse.json({ error: "Missing userId." }, { status: 400 });
     if (userId === userData.user.id) {
-      return NextResponse.json({ error: "You can't delete your own account." }, { status: 400 });
+      return NextResponse.json({ error: "You can't archive your own account." }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const isActive = action === "unarchive";
+    
+    // Soft delete: just toggle the is_active flag. 
+    // This preserves all their tasks for historical reporting.
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ is_active: isActive })
+      .eq("id", userId);
+
     if (error) {
-      console.error("Supabase delete error:", error);
-      return NextResponse.json({ error: "Failed to delete user." }, { status: 400 });
+      console.error("Supabase archive error:", error);
+      return NextResponse.json({ error: "Failed to update user status." }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, is_active: isActive });
   } catch (err) {
-    console.error("Admin delete-user error:", err);
+    console.error("Admin archive-user error:", err);
     return NextResponse.json({ error: "An internal server error occurred." }, { status: 500 });
   }
 }
