@@ -32,13 +32,15 @@ export async function POST(request) {
       return NextResponse.json({ error: "You can't delete your own account." }, { status: 400 });
     }
 
-    // Deleting the auth user cascades to their profile row and, from there,
-    // to their tasks (both have "on delete cascade" foreign keys).
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      console.error("Supabase delete error:", error);
+      return NextResponse.json({ error: "Failed to delete user." }, { status: 400 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json({ error: err.message || "Something went wrong." }, { status: 500 });
+    console.error("Admin delete-user error:", err);
+    return NextResponse.json({ error: "An internal server error occurred." }, { status: 500 });
   }
 }
