@@ -122,6 +122,25 @@ export default function DashboardPage() {
         </div>
       </nav>
 
+      {/* Mobile-only top bar — carries the logout button that the sidebar
+          (hidden on mobile) would otherwise have provided. */}
+      <div className="tl-mobile-topbar" style={{ background: T.surface, borderBottom: `1px solid ${T.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 24, height: 24, borderRadius: 6, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: 11, fontFamily: T.mono }}>T</span>
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 700, color: T.ink }}>Taskline</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div title={profile.full_name} style={{ width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+            {profile.full_name?.[0]?.toUpperCase() || "?"}
+          </div>
+          <button onClick={logout} title="Log out" style={{ background: "none", border: "none", color: T.inkMuted, cursor: "pointer", padding: 4, display: "flex" }}>
+            <LogOut size={17} />
+          </button>
+        </div>
+      </div>
+
       {/* Mobile-only bottom tab bar — the sidebar above hides at narrow
           widths via CSS, this takes over instead. */}
       <div className="tl-bottom-nav" style={{ background: T.surface, borderTop: `1px solid ${T.border}` }}>

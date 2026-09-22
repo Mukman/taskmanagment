@@ -38,12 +38,16 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Invalid role." }, { status: 400 });
     }
 
+    // A staff member's manager_id must point to a manager or director (or be null).
     const update = {};
     if (fullName !== undefined) update.full_name = fullName;
     if (role !== undefined) update.role = role;
     if (managerId !== undefined) update.manager_id = managerId || null;
     if (isAdmin !== undefined) update.is_admin = isAdmin;
 
+    // Safety net: don't let the last admin remove their own admin access —
+    // that would lock everyone out of account management with no way back
+    // in short of editing the database directly.
     if (userId === auth.callerId && isAdmin === false) {
       const { count } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("is_admin", true);
       if ((count || 0) <= 1) {
@@ -52,14 +56,10 @@ export async function PATCH(request) {
     }
 
     const { error } = await supabaseAdmin.from("profiles").update(update).eq("id", userId);
-    if (error) {
-      console.error("Supabase update error:", error);
-      return NextResponse.json({ error: "Failed to update user profile." }, { status: 400 });
-    }
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Admin update-user error:", err);
-    return NextResponse.json({ error: "An internal server error occurred." }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Something went wrong." }, { status: 500 });
   }
 }

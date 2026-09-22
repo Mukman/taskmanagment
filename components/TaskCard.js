@@ -30,12 +30,7 @@ export default function TaskCard({ task, onAdvance, onDelete, onEdit, assigneeNa
               </button>
             )}
             {onDelete && (
-              <button
-                onClick={() => {
-                  if (confirm(`Delete "${task.title}"? This can't be undone.`)) onDelete(task.id);
-                }}
-                style={{ background: "none", border: "none", cursor: "pointer", color: T.inkMuted, padding: 1, display: "flex" }}
-              >
+              <button onClick={() => onDelete(task.id)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkMuted, padding: 1, display: "flex" }}>
                 <X size={13} />
               </button>
             )}
