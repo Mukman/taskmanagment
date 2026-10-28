@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { T, card, input, btnPrimary } from "@/lib/theme";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 export default function LoginPage() {
   return (
@@ -42,7 +43,7 @@ function LoginForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const siteUrl = getSiteUrl(window.location.origin);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${siteUrl}/set-password`,
     });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 export async function POST(request) {
   try {
@@ -43,7 +44,7 @@ export async function POST(request) {
     // Invite the user by email. Supabase emails them a link that lands on
     // /set-password, where they choose their own password before entering
     // the app — the admin never sees or sets a password on their behalf.
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const siteUrl = getSiteUrl("http://localhost:3000");
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       data: { full_name: fullName, role },
       redirectTo: `${siteUrl}/set-password`,
